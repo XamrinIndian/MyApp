@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,16 @@ import {
   Image,
 } from "react-native";
 import { auth, db } from "../services/firebase";
-import { collection, query, where, onSnapshot, DocumentData } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  DocumentData,
+} from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import Feather from "react-native-vector-icons/Feather";
 import type { RootState, AppDispatch } from "../store";
-import { setPosts } from "../store/postsSlice";
 import { setUser } from "../store/authSlice";
 import CustomButton from "../components/CustomButton";
 import PostCard from "../components/PostCard";
@@ -29,7 +34,7 @@ interface Post extends DocumentData {
 
 export default function ProfileScreen() {
   const user = useSelector((state: RootState) => state.auth.user);
-  const posts = useSelector((state: RootState) => state.posts.posts) as Post[];
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -37,15 +42,20 @@ export default function ProfileScreen() {
     if (user) {
       const q = query(collection(db, "posts"), where("userId", "==", user.uid));
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const userPosts: Post[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        dispatch(setPosts(userPosts));
+        const posts: Post[] = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toMillis?.() || Date.now(),
+          };
+        });
+        setUserPosts(posts);
       });
+
       return unsubscribe;
     }
-  }, [user, dispatch]);
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -75,15 +85,27 @@ export default function ProfileScreen() {
         ) : (
           <Feather name="user" size={40} color="#333" />
         )}
-        <Text style={styles.userEmail}>{user?.displayName ?? "Anonymous"}</Text>
+        <Text style={styles.userEmail}>
+          {user?.displayName ?? "Anonymous"}
+        </Text>
       </View>
 
       <FlatList
-        data={posts}
+        data={userPosts}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20, color: 'red', fontSize: 22, fontWeight: 'bold' }}>
-          No posts available
-        </Text>}
+        ListEmptyComponent={
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 20,
+              color: "red",
+              fontSize: 22,
+              fontWeight: "bold",
+            }}
+          >
+            No posts available
+          </Text>
+        }
         renderItem={({ item }) => <PostCard item={item} />}
         contentContainerStyle={{ paddingBottom: 40 }}
       />

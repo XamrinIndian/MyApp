@@ -79,14 +79,7 @@ const LoginScreen = () => {
       />
 
       <CustomButton title="Login" onPress={handleLogin} />
-
-      <TouchableOpacity
-        style={[styles.containBtn, { borderWidth: 0 }]}
-        onPress={handleSignupRedirect}
-      >
-        <Text style={styles.signUpText}>Sign up</Text>
-      </TouchableOpacity>
-
+      <CustomButton title="Sign up" onPress={handleSignupRedirect} />
       <Modal visible={loading} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <ActivityIndicator size="large" color="#0000ff" />

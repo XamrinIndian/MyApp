@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
@@ -13,37 +13,40 @@ import type { RootState, AppDispatch } from "../store";
 import { setPosts } from "../store/postsSlice";
 import Feather from "react-native-vector-icons/Feather";
 import PostCard from "../components/PostCard";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen({ navigation }: { navigation: any }) {
   const posts = useSelector((state: RootState) => state.posts.posts);
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("user=>>",user)
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          userId: data.userId || "",
-          userName: data.userName || "",
-          userImage: data.userImage || "",
-          content: data.content || "",
-          imageBase64: data.imageBase64 || null,
-          likes: data.likes || 0,
-          likedByUser: data.likedByUser || false,
-          createdAt: data.createdAt?.toDate?.() || new Date(),
-        };
+  useFocusEffect(
+    useCallback(() => {
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const postsData = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            userId: data.userId || "",
+            userName: data.userName || "",
+            userImage: data.userImage || "",
+            content: data.content || "",
+            imageBase64: data.imageBase64 || null,
+            likes: data.likes || 0,
+            likedByUser: data.likedByUser || false,
+            createdAt: data.createdAt?.toMillis?.() || Date.now(),
+          };
+        });
+
+        console.log("Fetched posts: ", postsData);
+        dispatch(setPosts(postsData));
       });
 
-      console.log("Fetched posts: ", postsData); 
-      dispatch(setPosts(postsData));
-    });
-
-    return unsubscribe;
-  }, [dispatch]);
+      return () => unsubscribe();
+    }, [dispatch])
+  );
 
   return (
     <View style={styles.container}>
@@ -68,7 +71,15 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
         renderItem={({ item }) => <PostCard item={item} />}
         contentContainerStyle={{ paddingBottom: 40 }}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 20 ,color:'red',fontSize:22,fontWeight:'bold'}}>
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 20,
+              color: "red",
+              fontSize: 22,
+              fontWeight: "bold",
+            }}
+          >
             No posts available
           </Text>
         }
