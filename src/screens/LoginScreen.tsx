@@ -13,8 +13,13 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
+import { setUser } from "../store/authSlice";
+import type { AppDispatch } from "../store"; 
+import { useDispatch } from "react-redux";
 
 const LoginScreen = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +34,16 @@ const LoginScreen = () => {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    dispatch(setUser({
+      uid: user.uid,
+      email: user.email ?? '',
+      displayName: user.displayName ?? '', 
+      photoURL: user.photoURL ?? ''
+    }));
+
     } catch (e: any) {
       Alert.alert("Login failed", e?.message || "Unknown error occurred");
     } finally {
@@ -47,6 +61,7 @@ const LoginScreen = () => {
 
       <TextInput
         style={styles.input}
+        placeholderTextColor={'#000'}
         placeholder="Email"
         keyboardType="email-address"
         autoCapitalize="none"
@@ -55,6 +70,7 @@ const LoginScreen = () => {
       />
 
       <TextInput
+        placeholderTextColor={'#000'}
         style={styles.input}
         placeholder="Password"
         secureTextEntry
@@ -92,8 +108,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    color:'#000',
   },
   input: {
+    color:'#000',
     width: "100%",
     height: 40,
     borderColor: "#000",

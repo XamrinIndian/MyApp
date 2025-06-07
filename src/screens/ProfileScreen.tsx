@@ -81,7 +81,9 @@ export default function ProfileScreen() {
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={<Text>No posts yet.</Text>}
+        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20, color: 'red', fontSize: 22, fontWeight: 'bold' }}>
+          No posts available
+        </Text>}
         renderItem={({ item }) => <PostCard item={item} />}
         contentContainerStyle={{ paddingBottom: 40 }}
       />

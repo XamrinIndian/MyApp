@@ -89,6 +89,7 @@ export default function UpdateProfileScreen({ navigation }: { navigation: any })
 
       <TextInput
         style={styles.input}
+        placeholderTextColor={"#000"}
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
@@ -129,6 +130,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   input: {
+    color:'#000',
     height: 50,
     borderWidth: 1,
     borderColor: "#ccc",

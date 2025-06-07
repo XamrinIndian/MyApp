@@ -91,6 +91,7 @@ const SignupScreen = () => {
 
       <TextInput
         style={styles.input}
+        placeholderTextColor={'#000'}
         placeholder="Username"
         autoCapitalize="words"
         value={username}
@@ -101,12 +102,14 @@ const SignupScreen = () => {
         style={styles.input}
         placeholder="Email"
         keyboardType="email-address"
+        placeholderTextColor={'#000'}
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
 
       <TextInput
+        placeholderTextColor={'#000'}
         style={styles.input}
         placeholder="Password"
         secureTextEntry={true}
@@ -142,6 +145,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
+    color:'#000',
     width: "100%",
     height: 40,
     borderColor: "#000",

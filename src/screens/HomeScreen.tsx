@@ -68,7 +68,7 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
         renderItem={({ item }) => <PostCard item={item} />}
         contentContainerStyle={{ paddingBottom: 40 }}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 20 }}>
+          <Text style={{ textAlign: "center", marginTop: 20 ,color:'red',fontSize:22,fontWeight:'bold'}}>
             No posts available
           </Text>
         }
